@@ -77,11 +77,15 @@ class InspirationBot:
         logger.info("💡 일일 영감 생성 중...")
         
         try:
-            idea = await self.generator.generate_idea()
+            # 다음 발송할 아이디어 타입 결정 (히스토리 기반)
+            next_type = self.generator.history.get_next_type()
+            logger.info(f"💡 이번 발송 타입: {next_type}")
+            
+            idea = await self.generator.generate_idea(idea_type=next_type)
             result = await self.notifier.send_idea(idea)
             
             if result:
-                logger.success("✅ 일일 영감 발송 완료!")
+                logger.success(f"✅ 일일 영감 발송 완료! ({next_type})")
             else:
                 logger.error("❌ 일일 영감 발송 실패")
                 
@@ -92,8 +96,10 @@ class InspirationBot:
         """
         테스트용 즉시 발송
         """
-        logger.info("🧪 테스트 영감 생성 중...")
-        idea = await self.generator.generate_idea()
+        next_type = self.generator.history.get_next_type()
+        logger.info(f"🧪 테스트 영감 생성 중... (타입: {next_type})")
+        
+        idea = await self.generator.generate_idea(idea_type=next_type)
         result = await self.notifier.send_idea(idea)
         return result
 
