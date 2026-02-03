@@ -60,7 +60,8 @@ class InspirationBot:
         # 시작 알림
         await self.notifier.send_message(
             f"🚀 *영감봇 시작!*\n\n"
-            f"⏰ {settings.send_interval_minutes}분마다 신박한 프로젝트 아이디어를 보내드립니다.\n\n"
+            f"💡 소프트웨어 아이디어만 발송 (하드웨어 제외)\n"
+            f"⏰ {settings.send_interval_minutes}분마다 (4시간 주기) 신박한 SW 프로젝트 아이디어를 보내드립니다.\n\n"
             f"📅 시작 시각: {self.notifier.get_now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
     

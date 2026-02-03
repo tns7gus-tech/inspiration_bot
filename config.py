@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     gemini_model: str = Field(default="gemini-1.5-pro", description="Gemini 모델 (gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash-exp)")
     
     # Schedule
-    send_interval_minutes: int = Field(default=20, description="발송 간격 (분)")
+    send_interval_minutes: int = Field(default=240, description="발송 간격 (분) - 4시간마다")
     send_hour: int = Field(default=9, description="발송 시간 (시) - interval 사용시 무시")
     send_minute: int = Field(default=0, description="발송 시간 (분) - interval 사용시 무시")
     timezone: str = Field(default="Asia/Seoul", description="타임존")

@@ -44,9 +44,9 @@ class IdeaHistory:
             logger.error(f"Failed to save history: {e}")
 
     def get_next_type(self) -> str:
-        """Get the next idea type to generate"""
-        last = self.data.get("last_type", "mixed")
-        return "software" if last == "mixed" else "mixed"
+        """Get the next idea type to generate (software only)"""
+        # 소프트웨어 아이디어만 발송 (하드웨어/mixed 제외)
+        return "software"
 
     def record_idea(self, title: str, idea_type: str):
         """Record a new idea and update last type"""
