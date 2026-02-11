@@ -17,11 +17,15 @@ class Settings(BaseSettings):
     gemini_api_key: str = Field(default="", description="Google Gemini API Key")
     gemini_model: str = Field(default="gemini-1.5-pro", description="Gemini 모델 (gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash-exp)")
     
-    # Schedule
+    # Schedule - Idea Bot
     send_interval_minutes: int = Field(default=240, description="발송 간격 (분) - 4시간마다")
     send_hour: int = Field(default=9, description="발송 시간 (시) - interval 사용시 무시")
     send_minute: int = Field(default=0, description="발송 시간 (분) - interval 사용시 무시")
     timezone: str = Field(default="Asia/Seoul", description="타임존")
+    
+    # Schedule - Meal Recommender
+    meal_send_hour: int = Field(default=17, description="식단 추천 발송 시 (기본 17시)")
+    meal_send_minute: int = Field(default=30, description="식단 추천 발송 분 (기본 30분)")
     
     # Server
     port: int = Field(default=8080, description="HTTP 포트")

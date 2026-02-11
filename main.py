@@ -1,6 +1,6 @@
 """
 Inspiration Bot - Main Entry Point
-Daily creative project idea bot with scheduler
+Daily creative project idea bot + 토양체질 dinner menu recommender
 """
 import asyncio
 import os
@@ -13,6 +13,7 @@ from pathlib import Path
 from aiohttp import web
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
 # Add current dir to path
@@ -20,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import settings
 from idea_generator import IdeaGenerator
+from meal_recommender import MealRecommender
 from telegram_notifier import TelegramNotifier
 
 
@@ -32,10 +34,12 @@ logger.add(sys.stderr, format=log_format, level=settings.log_level)
 class InspirationBot:
     """
     매일 아침 창의적인 프로젝트 아이디어를 보내주는 영감봇
+    + 매일 17:30 토양체질 저녁 식단 추천
     """
     
     def __init__(self):
         self.generator = IdeaGenerator()
+        self.meal_recommender = MealRecommender()
         self.notifier = TelegramNotifier()
         self.scheduler = AsyncIOScheduler(timezone=pytz.timezone(settings.timezone))
         self.running = False
@@ -46,22 +50,38 @@ class InspirationBot:
         """봇 시작"""
         await self.notifier.start()
         
-        # 스케줄러 설정: N분마다 실행
+        # 스케줄러 설정 1: 영감봇 (N분마다)
         self.scheduler.add_job(
             self.send_daily_inspiration,
             IntervalTrigger(minutes=settings.send_interval_minutes),
             id="interval_inspiration",
             name="Interval Inspiration Sender"
         )
+        
+        # 스케줄러 설정 2: 토양체질 저녁 식단 (매일 17:30)
+        self.scheduler.add_job(
+            self.send_dinner_recommendation,
+            CronTrigger(
+                hour=settings.meal_send_hour,
+                minute=settings.meal_send_minute
+            ),
+            id="dinner_recommendation",
+            name="Daily Dinner Recommendation"
+        )
+        
         self.scheduler.start()
         
-        logger.success(f"🚀 영감봇 시작! {settings.send_interval_minutes}분마다 아이디어 발송")
+        logger.success(
+            f"🚀 영감봇 시작! "
+            f"아이디어: {settings.send_interval_minutes}분마다 | "
+            f"식단: 매일 {settings.meal_send_hour}:{settings.meal_send_minute:02d}"
+        )
         
         # 시작 알림
         await self.notifier.send_message(
             f"🚀 *영감봇 시작!*\n\n"
-            f"💡 소프트웨어 아이디어만 발송 (하드웨어 제외)\n"
-            f"⏰ {settings.send_interval_minutes}분마다 (4시간 주기) 신박한 SW 프로젝트 아이디어를 보내드립니다.\n\n"
+            f"💡 소프트웨어 아이디어: {settings.send_interval_minutes}분마다\n"
+            f"🍽️ 토양체질 저녁 식단: 매일 {settings.meal_send_hour}:{settings.meal_send_minute:02d}\n\n"
             f"📅 시작 시각: {self.notifier.get_now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
     
@@ -93,15 +113,43 @@ class InspirationBot:
         except Exception as e:
             logger.error(f"❌ 일일 영감 발송 에러: {e}")
     
+    async def send_dinner_recommendation(self):
+        """
+        토양체질 저녁 식단 추천 발송 (매일 17:30 스케줄러)
+        """
+        logger.info("🍽️ 토양체질 저녁 식단 추천 생성 중...")
+        
+        try:
+            menu = await self.meal_recommender.generate_dinner_menu()
+            result = await self.notifier.send_idea(menu)
+            
+            if result:
+                logger.success("✅ 저녁 식단 추천 발송 완료!")
+            else:
+                logger.error("❌ 저녁 식단 추천 발송 실패")
+                
+        except Exception as e:
+            logger.error(f"❌ 저녁 식단 추천 발송 에러: {e}")
+    
     async def send_test_inspiration(self):
         """
-        테스트용 즉시 발송
+        테스트용 즉시 발송 (영감)
         """
         next_type = self.generator.history.get_next_type()
         logger.info(f"🧪 테스트 영감 생성 중... (타입: {next_type})")
         
         idea = await self.generator.generate_idea(idea_type=next_type)
         result = await self.notifier.send_idea(idea)
+        return result
+
+    async def send_test_meal(self):
+        """
+        테스트용 즉시 발송 (식단)
+        """
+        logger.info("🧪 테스트 식단 추천 생성 중...")
+        
+        menu = await self.meal_recommender.generate_dinner_menu()
+        result = await self.notifier.send_idea(menu)
         return result
 
 
@@ -113,11 +161,13 @@ async def health_check(request):
 async def main():
     """Entry point"""
     logger.info("=" * 40)
-    logger.info("💡 Inspiration Bot v1.0.0")
+    logger.info("💡 Inspiration Bot v2.0.0")
+    logger.info("   + 🍽️ 토양체질 식단 추천")
     logger.info("=" * 40)
     
     # 테스트 모드 체크
     test_mode = "--test" in sys.argv
+    test_meal = "--test-meal" in sys.argv
     
     bot = InspirationBot()
     
@@ -135,11 +185,19 @@ async def main():
     
     await bot.start()
     
-    # 테스트 모드면 즉시 발송 후 종료
+    # 테스트 모드: 아이디어 즉시 발송 후 종료
     if test_mode:
         logger.info("🧪 테스트 모드: 즉시 아이디어 발송")
         result = await bot.send_test_inspiration()
-        print(f"\n테스트 결과: {'✅ 성공' if result else '❌ 실패'}")
+        print(f"\n테스트 결과: {'[OK] 성공' if result else '[FAIL] 실패'}")
+        await bot.stop()
+        return
+    
+    # 테스트 모드: 식단 즉시 발송 후 종료
+    if test_meal:
+        logger.info("🧪 테스트 모드: 즉시 식단 추천 발송")
+        result = await bot.send_test_meal()
+        print(f"\n테스트 결과: {'[OK] 성공' if result else '[FAIL] 실패'}")
         await bot.stop()
         return
     
