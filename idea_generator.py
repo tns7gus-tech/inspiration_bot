@@ -90,7 +90,7 @@ class IdeaGenerator:
         
         if idea_type == "software":
             # SW 전용 (한국인 페인포인트)
-            age_groups = ["10대", "20대", "30대", "40대", "50대 이상"]
+            age_groups = ["20대", "30대"]
             target_age = random.choice(age_groups)
             
             prompt = f"""당신은 한국인의 실제 불편함을 해결하는 소프트웨어 서비스 기획 전문가입니다.
