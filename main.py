@@ -50,12 +50,15 @@ class InspirationBot:
         """봇 시작"""
         await self.notifier.start()
         
-        # 스케줄러 설정 1: 영감봇 (N분마다)
+        # 스케줄러 설정 1: 영감봇 (매일 23:00)
         self.scheduler.add_job(
             self.send_daily_inspiration,
-            IntervalTrigger(minutes=settings.send_interval_minutes),
-            id="interval_inspiration",
-            name="Interval Inspiration Sender"
+            CronTrigger(
+                hour=settings.send_hour,
+                minute=settings.send_minute
+            ),
+            id="daily_inspiration",
+            name="Daily Inspiration Sender"
         )
         
         # 스케줄러 설정 2: 토양체질 저녁 식단 (매일 17:30)
@@ -73,15 +76,15 @@ class InspirationBot:
         
         logger.success(
             f"🚀 영감봇 시작! "
-            f"아이디어: {settings.send_interval_minutes}분마다 | "
-            f"식단: 매일 {settings.meal_send_hour}:{settings.meal_send_minute:02d}"
+            f"아이디어: 매일 {settings.send_hour:02d}:{settings.send_minute:02d} | "
+            f"식단: 매일 {settings.meal_send_hour:02d}:{settings.meal_send_minute:02d}"
         )
         
         # 시작 알림
         await self.notifier.send_message(
             f"🚀 *영감봇 시작!*\n\n"
-            f"💡 소프트웨어 아이디어: {settings.send_interval_minutes}분마다\n"
-            f"🍽️ 토양체질 저녁 식단: 매일 {settings.meal_send_hour}:{settings.meal_send_minute:02d}\n\n"
+            f"💡 소프트웨어 아이디어: 매일 {settings.send_hour:02d}:{settings.send_minute:02d}\n"
+            f"🍽️ 토양체질 저녁 식단: 매일 {settings.meal_send_hour:02d}:{settings.meal_send_minute:02d}\n\n"
             f"📅 시작 시각: {self.notifier.get_now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
     
