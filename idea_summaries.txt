@@ -1,0 +1,2 @@
+# Inspiration Bot Idea Summaries
+# format: YYYY-MM-DD | type | title | summary

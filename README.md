@@ -39,6 +39,8 @@ python main.py --test
 inspiration_bot/
 ├── main.py              # 메인 스케줄러
 ├── idea_generator.py    # Gemini AI 아이디어 생성
+├── idea_summary_store.py# 아이디어 요약 파일 관리
+├── idea_summaries.txt   # 기존 아이디어 요약 목록(중복/유사 방지용)
 ├── telegram_notifier.py # 텔레그램 발송
 ├── config.py            # 설정 관리
 ├── requirements.txt     # 의존성
@@ -53,3 +55,9 @@ inspiration_bot/
 SEND_HOUR=9
 SEND_MINUTE=0
 ```
+
+## 🧠 중복/유사 아이디어 방지
+
+- 매일 발송 전 `idea_summaries.txt`를 읽어 기존 아이디어를 프롬프트에 반영합니다.
+- 새 아이디어가 생성되면 핵심 내용이 한 줄 요약으로 `idea_summaries.txt`에 자동 추가됩니다.
+- 생성 후 Gemini 검색 기반 검증을 한 번 더 수행하여 이미 널리 존재하는 서비스와 유사하면 재생성합니다.
