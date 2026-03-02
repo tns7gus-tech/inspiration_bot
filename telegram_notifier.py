@@ -1,6 +1,6 @@
 """
 Inspiration Bot - Telegram Notifier
-Sends creative ideas and meal recommendations to Telegram
+Sends creative ideas to Telegram
 """
 import asyncio
 from datetime import datetime
@@ -173,10 +173,10 @@ class TelegramNotifier:
     
     async def send_idea(self, idea: str) -> bool:
         """
-        아이디어/식단 메시지 발송
+        아이디어 메시지 발송
         
         Args:
-            idea: 생성된 아이디어 또는 식단 텍스트
+            idea: 생성된 아이디어 텍스트
         """
         return await self.send_message(idea, parse_mode="Markdown")
 

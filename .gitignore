@@ -16,4 +16,3 @@ venv/
 logs/
 *.log
 idea_history.json
-meal_history.json

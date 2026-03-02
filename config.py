@@ -22,10 +22,6 @@ class Settings(BaseSettings):
     send_minute: int = Field(default=0, description="발송 시간 (분) - 0분")
     timezone: str = Field(default="Asia/Seoul", description="타임존")
     
-    # Schedule - Meal Recommender
-    meal_send_hour: int = Field(default=17, description="식단 추천 발송 시 (기본 17시)")
-    meal_send_minute: int = Field(default=30, description="식단 추천 발송 분 (기본 30분)")
-    
     # Server
     port: int = Field(default=8080, description="HTTP 포트")
     log_level: str = Field(default="INFO", description="로그 레벨")
